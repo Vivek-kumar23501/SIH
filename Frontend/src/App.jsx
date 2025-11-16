@@ -3,7 +3,7 @@ import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import HeroSection from "./Components/HeroSection";
 import Services from "./Components/Services";
-import DiseaseAwareness from "./Components/DiseaseAwareness";
+
 
 function App() {
   return (
@@ -19,7 +19,7 @@ function App() {
       
 <HeroSection />
 <Services />
-<DiseaseAwareness />
+
   
       <Footer />
     </div>
