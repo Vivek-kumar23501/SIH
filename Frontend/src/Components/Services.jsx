@@ -17,7 +17,6 @@ const services = [
   { icon: <Globe size={30} />, title: "Doctor Near Me", description: "Find nearby doctors easily.", img: "/images/doctor.jpg" },
   { icon: <Smartphone size={30} />, title: "WhatsApp Accessibility", description: "Access via WhatsApp.", img: "/images/whatsapp.jpg" },
   { icon: <Mic size={30} />, title: "Voice Assistance", description: "Voice-enabled guidance.", img: "/images/voice.jpg" },
- 
 ];
 
 const Services = () => {
@@ -66,6 +65,10 @@ const Services = () => {
           cursor: pointer;
           position: relative;
           overflow: hidden;
+          min-height: 250px; /* reduced height */
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
         }
         .service-card.animate {
           transform: translateY(0);
@@ -135,6 +138,7 @@ const Services = () => {
           }
           .service-card {
             padding: 20px 10px;
+            min-height: 230px; /* reduced height for mobile */
           }
         }
       `}</style>
