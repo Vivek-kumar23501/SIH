@@ -1,197 +1,227 @@
 import React, { useEffect, useState } from "react";
 import { Form, FormGroup, Label, Input, Button } from "reactstrap";
+import { Link } from "react-router-dom";
 
 const Signup = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    // Card animation
+    const cards = document.querySelectorAll(".service-card");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("animate");
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    cards.forEach((c) => observer.observe(c));
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cards.forEach((c) => observer.unobserve(c));
+    };
   }, []);
 
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("signup:", form);
+  };
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f2f6ff",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "900px",
-          height: isMobile ? "auto" : "600px",
-          backgroundColor: "#ffffff",
-          borderRadius: "18px",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          boxShadow: "0px 8px 30px rgba(0,0,0,0.12)",
-        }}
-      >
-        {/* LEFT SECTION – FORM */}
-        <div
-          style={{
-            flex: 1,
-            padding: isMobile ? "30px 25px" : "55px 60px",
-          }}
-        >
-          <h3 style={{ fontWeight: "700", marginBottom: "25px" }}>
-            Create Your MedPulse Account
-          </h3>
+    <>
+      <style>{`
+        .page-wrap {
+          min-height: 100vh;
+          background: #e0f7fa;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 50px 18px;
+        }
 
-          <Form>
-            {/* FULL NAME */}
-            <FormGroup>
-              <Label style={{ fontWeight: "600" }}>Full Name</Label>
-              <Input
-                type="text"
-                placeholder="Enter your full name"
-                style={{
-                  borderRadius: "30px",
-                  padding: "12px",
-                  border: "1px solid #c2d8ff",
-                }}
-              />
-            </FormGroup>
+        .split-card {
+          width: 100%;
+          max-width: 980px;
+          background: #fff;
+          border-radius: 14px;
+          overflow: hidden;
+          display: flex;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
 
-            {/* EMAIL */}
-            <FormGroup>
-              <Label style={{ fontWeight: "600" }}>Email Address</Label>
-              <Input
-                type="email"
-                placeholder="Enter email"
-                style={{
-                  borderRadius: "30px",
-                  padding: "12px",
-                  border: "1px solid #c2d8ff",
-                }}
-              />
-            </FormGroup>
+        /* Left green panel */
+        .service-card {
+          flex: 1;
+          padding: 28px;
+          position: relative;
+          min-height: 420px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          border-radius: 0;
+          background: linear-gradient(135deg, #00acc1, #00796b);
+          color: white;
+          transform: translateY(40px);
+          opacity: 0;
+          transition: all 0.7s ease;
+        }
+        .service-card.animate { transform: translateY(0); opacity: 1; }
 
-            {/* PASSWORD */}
-            <FormGroup>
-              <Label style={{ fontWeight: "600" }}>Password</Label>
-              <Input
-                type="password"
-                placeholder="Create a password"
-                style={{
-                  borderRadius: "30px",
-                  padding: "12px",
-                  border: "1px solid #c2d8ff",
-                }}
-              />
-            </FormGroup>
+        .form-panel {
+          flex: 1;
+          padding: 34px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
 
-            {/* SIGNUP BUTTON */}
-            <div style={{ marginTop: "25px" }}>
-              <Button
-                style={{
-                  backgroundColor: "#0066e6",
-                  borderRadius: "30px",
-                  padding: "12px 35px",
-                  border: "none",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  transition: "0.3s",
-                }}
-                onMouseOver={(e) =>
-                  (e.target.style.transform = "scale(1.08)")
-                }
-                onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
-              >
-                Signup
-              </Button>
-            </div>
+        .service-image {
+          position: absolute;
+          left: -110%;
+          top: 0;
+          width: 120%;
+          height: 100%;
+          background-size: cover;
+          background-position: center;
+          opacity: 0.10;
+          transition: all 0.55s ease;
+          z-index: 0;
+        }
+        .service-card:hover .service-image { left: 0; opacity: 0.20; }
 
-            {/* LOGIN LINK */}
-            <p
-              style={{
-                marginTop: "20px",
-                fontSize: "14px",
-                fontWeight: "600",
-              }}
-            >
-              Already have an account?{" "}
-              <a href="/login" style={{ color: "#005ad6" }}>
-                Login
-              </a>
-            </p>
-          </Form>
-        </div>
+        .brand-title {
+          font-size: 28px;
+          font-weight: 700;
+          margin-bottom: 10px;
+          z-index: 2;
+        }
+        .brand-sub {
+          font-size: 15px;
+          line-height: 1.7;
+          opacity: 0.95;
+          z-index: 2;
+        }
 
-        {/* RIGHT SIDE CONTENT (Updated & Professional) */}
-        {!isMobile && (
-          <div
-            style={{
-              width: "50%",
-              background: "linear-gradient(135deg, #0b4ae2, #4e8bff)",
-              color: "white",
-              padding: "50px 40px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
-            <h1
-              style={{
-                fontWeight: "700",
-                marginBottom: "20px",
-                fontSize: "36px",
-                lineHeight: "1.2",
-              }}
-            >
-              Join <span style={{ color: "#ffdf5b" }}>MedPulse</span>
-            </h1>
+        .form-panel h2 { font-size: 22px; margin-bottom: 12px; color: #0b3b3b; }
+        .form-panel p.lead { color: #416b6b; margin-bottom: 22px; }
+        .input-rounded { border-radius: 30px; padding: 12px 16px; border: 1px solid #cfeff0; }
+        .btn-primary-custom {
+          background: linear-gradient(90deg,#0b63b6,#2f8bff);
+          border: none;
+          border-radius: 28px;
+          padding: 10px 20px;
+          font-weight: 700;
+          box-shadow: 0 8px 20px rgba(11,75,180,0.18);
+        }
 
-            <p
-              style={{
-                fontSize: "17px",
-                lineHeight: "1.7",
-                opacity: 0.95,
-                marginBottom: "20px",
-              }}
-            >
-              Create your account and step into a smarter way of accessing
-              healthcare guidance. MedPulse connects you with AI-powered
-              health insights, preventive care support, and trusted disease
-              awareness tools.
-            </p>
+        .links-row { margin-top: 18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+        .links-row a { color: #0b63b6; font-weight: 600; text-decoration: none; }
 
-            <p
-              style={{
-                fontSize: "16px",
-                lineHeight: "1.6",
-                opacity: 0.9,
-                marginBottom: "25px",
-              }}
-            >
-              Stay informed with real-time alerts, multilingual assistance,
-              and reliable information designed to empower communities across
-              India.
-            </p>
+        /* MOBILE VIEW: Hide left green card completely */
+        @media (max-width: 767px) {
+          .split-card { flex-direction: column; }
 
+          .service-card {
+            display: none !important;
+          }
+
+          .form-panel {
+            padding: 22px;
+          }
+        }
+      `}</style>
+
+      <div className="page-wrap">
+        <div className="split-card">
+
+          {/* LEFT PANEL (HIDDEN IN MOBILE) */}
+          <div className="service-card" aria-hidden>
             <div
-              style={{
-                marginTop: "20px",
-                fontSize: "15px",
-                opacity: 0.8,
-                borderTop: "1px solid rgba(255,255,255,0.3)",
-                paddingTop: "20px",
-              }}
-            >
-              Be part of the platform shaping the future of public health
-              awareness.
+              className="service-image"
+              style={{ backgroundImage: `url('/images/medpulse-signup.jpg')` }}
+            />
+            <div style={{ position: "relative", zIndex: 2 }}>
+              <div className="brand-title">
+                Join <span style={{ color: "#ffdf5b" }}>MedPulse</span>
+              </div>
+              <div className="brand-sub">
+                Create an account to access AI-driven health guidance, preventive care tips,
+                multilingual support, and real-time outbreak alerts.
+              </div>
             </div>
           </div>
-        )}
+
+          {/* RIGHT FORM PANEL */}
+          <div className="form-panel">
+            <h2>Create your MedPulse account</h2>
+            <p className="lead">Quick signup — stay informed with trusted health updates.</p>
+
+            <Form onSubmit={handleSubmit}>
+              <FormGroup>
+                <Label htmlFor="name" style={{ fontWeight: 700, fontSize: 13 }}>Full name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  className="input-rounded"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Your full name"
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="email" style={{ fontWeight: 700, fontSize: 13 }}>Email address</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  className="input-rounded"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="password" style={{ fontWeight: 700, fontSize: 13 }}>Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  className="input-rounded"
+                  type="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Create a strong password"
+                  required
+                />
+              </FormGroup>
+
+              <Button type="submit" className="btn-primary-custom">
+                Signup
+              </Button>
+            </Form>
+
+            <div className="links-row">
+              <div>Already registered? <Link to="/login">Login</Link></div>
+              <div>|</div>
+              <div><Link to="/forgot-password">Forgot password?</Link></div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

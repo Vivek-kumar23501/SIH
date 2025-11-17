@@ -1,177 +1,181 @@
 import React, { useEffect, useState } from "react";
 import { Form, FormGroup, Label, Input, Button } from "reactstrap";
+import { Link } from "react-router-dom";
 
 const ForgetPassword = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    const cards = document.querySelectorAll(".service-card");
+    const observer = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("animate");
+        }),
+      { threshold: 0.15 }
+    );
+
+    cards.forEach((c) => observer.observe(c));
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cards.forEach((c) => observer.unobserve(c));
+    };
   }, []);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("send reset link to:", email);
+  };
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f2f6ff",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "900px",
-          height: isMobile ? "auto" : "600px",
-          backgroundColor: "#ffffff",
-          borderRadius: "18px",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          boxShadow: "0px 8px 30px rgba(0,0,0,0.12)",
-        }}
-      >
-        {/* LEFT SECTION – FORM */}
-        <div
-          style={{
-            flex: 1,
-            padding: isMobile ? "30px 25px" : "55px 60px",
-          }}
-        >
-          <h3 style={{ fontWeight: "700", marginBottom: "20px" }}>
-            Reset Your Password
-          </h3>
+    <>
+      <style>{`
+        .page-wrap {
+          min-height: 100vh;
+          background: #e0f7fa;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 50px 18px;
+        }
 
-          <p
-            style={{
-              fontSize: "14px",
-              marginBottom: "25px",
-              opacity: 0.8,
-            }}
-          >
-            Enter your registered email address and we will send you a secure
-            link to reset your password.
-          </p>
+        .split-card {
+          width: 100%;
+          max-width: 980px;
+          background: #fff;
+          border-radius: 14px;
+          overflow: hidden;
+          display: flex;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
 
-          <Form>
-            {/* EMAIL FIELD */}
-            <FormGroup>
-              <Label style={{ fontWeight: "600" }}>Email Address</Label>
-              <Input
-                type="email"
-                placeholder="Enter your registered email"
-                style={{
-                  borderRadius: "30px",
-                  padding: "12px",
-                  border: "1px solid #c2d8ff",
-                }}
+        .service-card {
+          flex: 1;
+          padding: 28px;
+          position: relative;
+          min-height: 420px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          border-radius: 0;
+          background: linear-gradient(135deg, #00acc1, #00796b);
+          color: white;
+          transform: translateY(40px);
+          opacity: 0;
+          transition: all 0.7s ease;
+        }
+        .service-card.animate { transform: translateY(0); opacity: 1; }
+
+        .service-image {
+          position: absolute;
+          left: -110%;
+          top: 0;
+          width: 120%;
+          height: 100%;
+          background-size: cover;
+          background-position: center;
+          opacity: 0.10;
+          transition: all 0.55s ease;
+          z-index: 0;
+        }
+        .service-card:hover .service-image { left: 0; opacity: 0.20; }
+
+        .form-panel {
+          flex: 1;
+          padding: 34px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .brand-title { font-size: 28px; font-weight:700; margin-bottom:10px; }
+        .brand-sub { font-size: 15px; line-height:1.7; opacity:0.95; }
+
+        .input-rounded { border-radius: 30px; padding: 12px 16px; border: 1px solid #cfeff0; }
+        .btn-primary-custom {
+          background: linear-gradient(90deg,#0b63b6,#2f8bff);
+          border: none;
+          border-radius: 28px;
+          padding: 10px 20px;
+          font-weight: 700;
+          box-shadow: 0 8px 20px rgba(11,75,180,0.18);
+        }
+
+        .links-row { margin-top: 18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+        .links-row a { color: #0b63b6; font-weight: 600; text-decoration: none; }
+
+        @media (max-width: 767px) {
+          .split-card { flex-direction: column; }
+          .service-card { display: none !important; } /* HIDE LEFT PANEL ON MOBILE */
+          .form-panel { padding: 22px; }
+        }
+      `}</style>
+
+      <div className="page-wrap">
+        <div className="split-card">
+          
+          {/* LEFT: Gradient Card — Hidden on Mobile */}
+          {!isMobile && (
+            <div className="service-card" aria-hidden>
+              <div
+                className="service-image"
+                style={{ backgroundImage: `url('/images/medpulse-reset.jpg')` }}
               />
-            </FormGroup>
+              <div style={{ position: "relative", zIndex: 2 }}>
+                <div className="brand-title">Forgot Password?</div>
+                <div className="brand-sub">
+                  We'll help you get back into your MedPulse account securely.
+                  Enter your registered email and we'll send a one-time secure link.
+                </div>
 
-            {/* RESET BUTTON */}
-            <div style={{ marginTop: "25px" }}>
-              <Button
-                style={{
-                  backgroundColor: "#0066e6",
-                  borderRadius: "30px",
-                  padding: "12px 35px",
-                  border: "none",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  transition: "0.3s",
-                }}
-                onMouseOver={(e) =>
-                  (e.target.style.transform = "scale(1.08)")
-                }
-                onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
-              >
-                Send Reset Link
-              </Button>
+                <div style={{ marginTop: 20, fontSize: 14, opacity: 0.95 }}>
+                  • Encrypted reset link • Expires in 30 minutes • Privacy-first
+                </div>
+              </div>
             </div>
+          )}
 
-            {/* BACK TO LOGIN */}
-            <p
-              style={{
-                marginTop: "20px",
-                fontSize: "14px",
-                fontWeight: "600",
-              }}
-            >
-              Remember your password?{" "}
-              <a href="/login" style={{ color: "#005ad6" }}>
-                Login
-              </a>
-            </p>
-          </Form>
-        </div>
-
-        {/* RIGHT SIDE CONTENT – PROFESSIONAL MEDPULSE THEME */}
-        {!isMobile && (
-          <div
-            style={{
-              width: "50%",
-              background: "linear-gradient(135deg, #0b4ae2, #4e8bff)",
-              color: "white",
-              padding: "50px 40px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
-            <h1
-              style={{
-                fontWeight: "700",
-                marginBottom: "20px",
-                fontSize: "34px",
-                lineHeight: "1.2",
-              }}
-            >
-              Forgot Your Password?
-            </h1>
-
-            <p
-              style={{
-                fontSize: "17px",
-                lineHeight: "1.7",
-                opacity: 0.95,
-                marginBottom: "20px",
-              }}
-            >
-              No worries! MedPulse ensures secure and seamless recovery so you
-              can continue accessing trusted healthcare insights without
-              interruption.
+          {/* RIGHT: Reset Form */}
+          <div className="form-panel">
+            <h2>Reset your password</h2>
+            <p className="lead" style={{ color: "#416b6b" }}>
+              Enter the email associated with your account and we'll send a reset link.
             </p>
 
-            <p
-              style={{
-                fontSize: "16px",
-                lineHeight: "1.6",
-                opacity: 0.9,
-                marginBottom: "25px",
-              }}
-            >
-              Your data is protected end-to-end, and our encrypted reset process
-              guarantees the safety of your account.
-            </p>
+            <Form onSubmit={handleSubmit}>
+              <FormGroup>
+                <Label style={{ fontWeight: 700, fontSize: 13 }}>Email address</Label>
+                <Input
+                  className="input-rounded"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                />
+              </FormGroup>
 
-            <div
-              style={{
-                marginTop: "20px",
-                fontSize: "15px",
-                opacity: 0.8,
-                borderTop: "1px solid rgba(255,255,255,0.3)",
-                paddingTop: "20px",
-              }}
-            >
-              MedPulse — Your trusted partner in AI-driven public healthcare.
+              <div style={{ marginTop: 18 }}>
+                <Button type="submit" className="btn-primary-custom">
+                  Send Reset Link
+                </Button>
+              </div>
+            </Form>
+
+            <div className="links-row">
+              <Link to="/login">Back to Login</Link>
+              <div>|</div>
+              <Link to="/signup">Create Account</Link>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

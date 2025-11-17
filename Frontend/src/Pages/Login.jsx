@@ -12,175 +12,159 @@ const Login = () => {
   }, []);
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#f2f6ff",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "850px",
-          height: isMobile ? "auto" : "540px",
-          backgroundColor: "#ffffff",
-          borderRadius: "18px",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          boxShadow: "0px 8px 30px rgba(0,0,0,0.12)",
-        }}
-      >
-        {/* LEFT BLUE SECTION — Hidden on Mobile */}
-        {!isMobile && (
-          <div
-            style={{
-              flex: 1,
-              background: "linear-gradient(135deg, #005ad6, #2a8cff)",
-              padding: "40px",
-              color: "white",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
-            <h2 style={{ fontWeight: "700", marginBottom: "10px" }}>
-              WELCOME TO
+    <>
+      <style>{`
+        .page-wrap {
+          min-height: 100vh;
+          background: #e0f7fa;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 50px 20px;
+        }
+
+        .login-card {
+          width: 100%;
+          max-width: 950px;
+          background: #ffffff;
+          border-radius: 16px;
+          overflow: hidden;
+          display: flex;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+          flex-direction: row;
+        }
+
+        .left-panel {
+          flex: 1;
+          background: linear-gradient(135deg, #00acc1, #00796b);
+          padding: 40px;
+          color: white;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .left-title { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
+        .left-sub { font-size: 17px; opacity: 0.95; line-height: 1.6; }
+
+        .form-panel {
+          flex: 1;
+          padding: 50px 60px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .input-rounded {
+          border-radius: 30px;
+          padding: 12px 16px;
+          border: 1px solid #cfeff0;
+        }
+
+        .btn-primary-custom {
+          background: linear-gradient(90deg,#0b63b6,#2f8bff);
+          border: none;
+          border-radius: 28px;
+          padding: 12px 35px;
+          font-weight: 700;
+          box-shadow: 0 8px 20px rgba(11,75,180,0.18);
+          transition: 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+          transform: scale(1.07);
+        }
+
+        .links {
+          margin-top: 20px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #0b63b6;
+        }
+
+        @media (max-width: 767px) {
+          .login-card { flex-direction: column; }
+          .left-panel { display: none; }
+          .form-panel { padding: 30px 25px; }
+        }
+      `}</style>
+
+      <div className="page-wrap">
+        <div className="login-card">
+
+          {/* LEFT PANEL — HIDDEN ON MOBILE */}
+          {!isMobile && (
+            <div className="left-panel">
+              <div className="left-title">Welcome Back!</div>
+              <div className="left-sub">
+                Access your healthcare dashboard securely with AI-powered support.
+              </div>
+            </div>
+          )}
+
+          {/* RIGHT LOGIN FORM */}
+          <div className="form-panel">
+            <h2
+              style={{
+                fontWeight: "700",
+                marginBottom: "25px",
+                color: "#004d40",
+              }}
+            >
+              Login to your account
             </h2>
 
-            <div
-              style={{
-                fontSize: "30px",
-                fontWeight: "700",
-                marginBottom: "10px",
-              }}
-            >
-              HEALTHCARE AI
-            </div>
+            <Form>
+              {/* EMAIL */}
+              <FormGroup style={{ marginBottom: "20px" }}>
+                <Label style={{ fontWeight: "600", fontSize: "14px" }}>
+                  Email Address
+                </Label>
+                <Input
+                  type="email"
+                  placeholder="you@example.com"
+                  className="input-rounded"
+                />
+              </FormGroup>
 
-            <p style={{ lineHeight: "1.5", opacity: "0.95" }}>
-              Your smart healthcare assistant — available in multiple languages.
-            </p>
+              {/* PASSWORD */}
+              <FormGroup style={{ marginBottom: "15px" }}>
+                <Label style={{ fontWeight: "600", fontSize: "14px" }}>
+                  Password
+                </Label>
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  className="input-rounded"
+                />
+              </FormGroup>
+
+              {/* LOGIN BUTTON */}
+              <div style={{ marginTop: "25px" }}>
+                <Button className="btn-primary-custom">Login</Button>
+              </div>
+
+              {/* LINKS */}
+              <div style={{ marginTop: "25px", lineHeight: "1.8" }}>
+                <div style={{
+                    color:"black"
+                }}  className="links">
+                  If you forgot the password then click{" "}
+                  <Link to="/forgot-password">Forget Password</Link>
+                </div>
+
+                <div style={{
+                    color:"black"
+                }}  className="links">
+                  If you have not registered then click{" "}
+                  <Link to="/signup">Signup</Link>
+                </div>
+              </div>
+            </Form>
           </div>
-        )}
-
-        {/* RIGHT LOGIN FORM */}
-        <div
-          style={{
-            flex: 1,
-            padding: isMobile ? "30px 25px" : "55px 60px",
-            width: "100%",
-          }}
-        >
-          <h3
-            style={{
-              fontWeight: "600",
-              marginBottom: "25px",
-              textAlign: isMobile ? "center" : "left",
-            }}
-          >
-            Login to your account
-          </h3>
-
-          <Form>
-            {/* EMAIL */}
-            <FormGroup style={{ marginBottom: "20px" }}>
-              <Label style={{ fontWeight: "600" }}>E-MAIL ADDRESS</Label>
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                style={{
-                  borderRadius: "30px",
-                  padding: "12px",
-                  border: "1px solid #c2d8ff",
-                }}
-              />
-            </FormGroup>
-
-            {/* PASSWORD */}
-            <FormGroup style={{ marginBottom: "10px" }}>
-              <Label style={{ fontWeight: "600" }}>PASSWORD</Label>
-              <Input
-                type="password"
-                placeholder="Enter your password"
-                style={{
-                  borderRadius: "30px",
-                  padding: "12px",
-                  border: "1px solid #c2d8ff",
-                }}
-              />
-            </FormGroup>
-
-            {/* LOGIN BUTTON */}
-            <div
-              style={{
-                marginTop: "30px",
-                display: "flex",
-                justifyContent: isMobile ? "center" : "flex-start",
-              }}
-            >
-              <Button
-                style={{
-                  backgroundColor: "#0066e6",
-                  borderRadius: "30px",
-                  padding: "12px 40px",
-                  border: "none",
-                  fontSize: "16px",
-                  transition: "0.3s ease",
-                }}
-                onMouseOver={(e) =>
-                  (e.target.style.transform = "scale(1.08)")
-                }
-                onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
-              >
-                Login
-              </Button>
-            </div>
-
-            {/* LINKS SECTION */}
-            <div
-              style={{
-                marginTop: "25px",
-                textAlign: isMobile ? "center" : "left",
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-              }}
-            >
-              <div style={{ fontSize: "14px", fontWeight: "600" }}>
-                If you forgot the password then click{" "}
-                <Link
-                  to="/forgot-password"
-                  style={{
-                    color: "#005ad6",
-                    textDecoration: "none",
-                  }}
-                >
-                  Forget Password
-                </Link>
-              </div>
-
-              <div style={{ fontSize: "14px", fontWeight: "600" }}>
-                If you have not registered then click{" "}
-                <Link
-                  to="/signup"
-                  style={{
-                    color: "#005ad6",
-                    textDecoration: "none",
-                  }}
-                >
-                  Signup
-                </Link>
-              </div>
-            </div>
-          </Form>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
