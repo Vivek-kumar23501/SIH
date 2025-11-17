@@ -1,9 +1,12 @@
 import React from "react";
+import { Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import HeroSection from "./Components/HeroSection";
 import Services from "./Components/Services";
-
+import Login from "./Pages/Login";
+import Signup from "./Pages/Signup";
+import ForgetPassword from "./Pages/ForgetPassword";
 
 function App() {
   return (
@@ -14,13 +17,15 @@ function App() {
         minHeight: "100vh",
       }}
     >
-      {/* Navbar */}
       <Navbar />
-      
-<HeroSection />
-<Services />
 
-  
+      <Routes>
+        <Route path="/" element={<><HeroSection /><Services /></>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgetPassword />} />
+      </Routes>
+
       <Footer />
     </div>
   );
