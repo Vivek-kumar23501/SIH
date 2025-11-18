@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Form, FormGroup, Label, Input, Button } from "reactstrap";
+import { Form, FormGroup, Input, Button } from "reactstrap";
 import { Link } from "react-router-dom";
+import { FaEnvelope } from "react-icons/fa";
+import axios from "axios";
+import Navbar from "../Components/Navbar";
+import Footer from "../Components/Footer";
+
 
 const ForgetPassword = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -27,13 +36,50 @@ const ForgetPassword = () => {
     };
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("send reset link to:", email);
+  // Step 1: send OTP
+  const sendOTP = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/forgot-password", { email });
+      if (res.data.success) {
+        alert(res.data.message);
+        setStep(2);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Error sending OTP");
+    }
+  };
+
+  // Step 2: verify OTP
+  const verifyOTP = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/forgot-password/verify-otp", { email, otp });
+      if (res.data.success) {
+        alert(res.data.message);
+        setStep(3);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Invalid OTP");
+    }
+  };
+
+  // Step 3: reset password
+  const resetPassword = async () => {
+    if (password !== confirmPassword) return alert("Passwords do not match!");
+    try {
+      const res = await axios.put("http://localhost:5000/api/auth/forgot-password/reset", { email, password });
+      if (res.data.success) {
+        alert(res.data.message);
+        setStep(1);
+        setEmail(""); setOtp(""); setPassword(""); setConfirmPassword("");
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Error resetting password");
+    }
   };
 
   return (
     <>
+    <Navbar />
       <style>{`
         .page-wrap {
           min-height: 100vh;
@@ -111,70 +157,62 @@ const ForgetPassword = () => {
 
         @media (max-width: 767px) {
           .split-card { flex-direction: column; }
-          .service-card { display: none !important; } /* HIDE LEFT PANEL ON MOBILE */
+          .service-card { display: none !important; }
           .form-panel { padding: 22px; }
         }
       `}</style>
 
       <div className="page-wrap">
         <div className="split-card">
-          
-          {/* LEFT: Gradient Card — Hidden on Mobile */}
           {!isMobile && (
             <div className="service-card" aria-hidden>
-              <div
-                className="service-image"
-                style={{ backgroundImage: `url('/images/medpulse-reset.jpg')` }}
-              />
+              <div className="service-image" style={{ backgroundImage: `url('/images/medpulse-reset.jpg')` }} />
               <div style={{ position: "relative", zIndex: 2 }}>
                 <div className="brand-title">Forgot Password?</div>
                 <div className="brand-sub">
-                  We'll help you get back into your MedPulse account securely.
-                  Enter your registered email and we'll send a one-time secure link.
-                </div>
-
-                <div style={{ marginTop: 20, fontSize: 14, opacity: 0.95 }}>
-                  • Encrypted reset link • Expires in 30 minutes • Privacy-first
+                  We'll help you get back into your account securely.
+                  Enter your registered email and follow the steps.
                 </div>
               </div>
             </div>
           )}
 
-          {/* RIGHT: Reset Form */}
           <div className="form-panel">
             <h2>Reset your password</h2>
-            <p className="lead" style={{ color: "#416b6b" }}>
-              Enter the email associated with your account and we'll send a reset link.
-            </p>
-
-            <Form onSubmit={handleSubmit}>
+            {step === 1 && (
+              <>
+                <FormGroup className="mb-3 position-relative">
+                  <FaEnvelope className="position-absolute" style={{ top: '12px', left: '10px', color:'#764ba2' }}/>
+                  <Input type="email" placeholder="Enter your Email" required value={email} onChange={e=>setEmail(e.target.value)} style={{ paddingLeft:'35px' }} />
+                  <Button className="btn-primary-custom w-100 mt-2" onClick={sendOTP}>Send OTP</Button>
+                </FormGroup>
+              </>
+            )}
+            {step === 2 && (
               <FormGroup>
-                <Label style={{ fontWeight: 700, fontSize: 13 }}>Email address</Label>
-                <Input
-                  className="input-rounded"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                />
+                <Input type="text" placeholder="Enter OTP" value={otp} onChange={e=>setOtp(e.target.value)} />
+                <Button className="btn-primary-custom w-100 mt-2" onClick={verifyOTP}>Verify OTP</Button>
               </FormGroup>
-
-              <div style={{ marginTop: 18 }}>
-                <Button type="submit" className="btn-primary-custom">
-                  Send Reset Link
-                </Button>
-              </div>
-            </Form>
-
+            )}
+            {step === 3 && (
+              <>
+                <FormGroup>
+                  <Input type="password" placeholder="New Password" value={password} onChange={e=>setPassword(e.target.value)} />
+                </FormGroup>
+                <FormGroup>
+                  <Input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} />
+                </FormGroup>
+                <Button className="btn-primary-custom w-100" onClick={resetPassword}>Reset Password</Button>
+              </>
+            )}
             <div className="links-row">
               <Link to="/login">Back to Login</Link>
-              <div>|</div>
               <Link to="/signup">Create Account</Link>
             </div>
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };
