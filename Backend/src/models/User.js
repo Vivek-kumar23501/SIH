@@ -16,6 +16,18 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, 'Please provide a valid email']
   },
+  // NEW: Mobile number field
+  mobile: {
+    type: String,
+    required: [true, 'Mobile number is required'],
+    validate: {
+      validator: function(v) {
+        // Basic mobile number validation (10-15 digits, optional country code)
+        return /^[\+]?[1-9][\d]{0,15}$/.test(v);
+      },
+      message: 'Please provide a valid mobile number'
+    }
+  },
   passwordHash: {
     type: String,
     required: function() {
@@ -36,6 +48,11 @@ const userSchema = new mongoose.Schema({
     default: 'patient'
   },
   emailVerified: {
+    type: Boolean,
+    default: false
+  },
+  // NEW: Mobile verification field
+  mobileVerified: {
     type: Boolean,
     default: false
   },
@@ -60,6 +77,7 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ email: 1 });
 userSchema.index({ googleId: 1 });
 // NEW index for OTP cleanup
+userSchema.index({ mobile: 1 }); // NEW: Index for mobile
 userSchema.index({ 'otp.expiresAt': 1 });
 
 // EXISTING METHODS (unchanged)

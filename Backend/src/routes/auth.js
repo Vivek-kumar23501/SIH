@@ -10,25 +10,34 @@ const { loginLimiter, refreshLimiter } = require('../middleware/rateLimit');
 const router = express.Router();
 router.use(cookieParser());
 
-// Email + Password Signup (UPDATED with OTP)
+// Email + Password Signup (Updated with Mobile)
 router.post('/signup', loginLimiter, async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, mobile, password, role } = req.body;
 
     // Validation
-    if (!name || !email || !password) {
+    if (!name || !email || !mobile || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Name, email, and password are required'
+        message: 'Name, email, mobile, and password are required'
       });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Check if user already exists with email
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
       return res.status(409).json({
         success: false,
         message: 'User already exists with this email'
+      });
+    }
+
+    // NEW: Check if user already exists with mobile
+    const existingUserByMobile = await User.findOne({ mobile });
+    if (existingUserByMobile) {
+      return res.status(409).json({
+        success: false,
+        message: 'User already exists with this mobile number'
       });
     }
 
@@ -37,18 +46,19 @@ router.post('/signup', loginLimiter, async (req, res) => {
     const user = new User({
       name,
       email,
+      mobile, // NEW: Add mobile number
       passwordHash,
       role: role || 'patient',
-      emailVerified: false // NEW: Start as unverified for email users
+      emailVerified: false
     });
 
     await user.save();
 
-    // NEW: Generate and send OTP for email verification
+    // Generate and send OTP
     const otpCode = user.generateOTP();
     await user.save();
 
-    // NEW: Send OTP email
+    // Send OTP email
     const emailResult = await EmailService.sendOTPEmail(email, otpCode, name);
 
     res.status(201).json({
@@ -57,13 +67,33 @@ router.post('/signup', loginLimiter, async (req, res) => {
       data: {
         userId: user._id,
         email: user.email,
-        requiresVerification: true, // NEW: Indicate OTP verification is needed
+        mobile: user.mobile, // NEW: Include mobile in response
+        requiresVerification: true,
         emailSent: emailResult.success
       }
     });
 
   } catch (error) {
     console.error('Signup error:', error);
+    
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: errors.join(', ')
+      });
+    }
+    
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return res.status(409).json({
+        success: false,
+        message: `User already exists with this ${field}`
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Internal server error during signup'
@@ -303,6 +333,7 @@ router.post('/verify-otp', loginLimiter, async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          mobile: user.mobile, // NEW: Include mobile
           role: user.role,
           picture: user.picture,
           emailVerified: user.emailVerified
