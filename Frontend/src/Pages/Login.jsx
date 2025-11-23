@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-<<<<<<< HEAD
 import { Form, FormGroup, Label, Input, Button, Alert, Spinner } from "reactstrap";
-=======
->>>>>>> 79218b8 (frontend)
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Components/Navbar";
@@ -27,12 +24,14 @@ const Login = () => {
     }
   }, [navigate]);
 
+  // Responsive check
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
@@ -70,6 +69,7 @@ const Login = () => {
     handleLogin();
   };
 
+  // Handle login
   const handleLogin = async () => {
     if (!validateForm()) return;
 
@@ -83,19 +83,13 @@ const Login = () => {
       if (res.data.success) {
         const { accessToken, user } = res.data.data;
 
-<<<<<<< HEAD
         // Save token, userId, and user info in localStorage
         localStorage.setItem("token", accessToken);
         localStorage.setItem("userId", user.id);
-=======
-        localStorage.setItem("token", token);
-        localStorage.setItem("userId", user._id);
->>>>>>> 79218b8 (frontend)
         localStorage.setItem("user", JSON.stringify(user));
 
         setSuccess("Login successful! Redirecting...");
 
-<<<<<<< HEAD
         // Small delay to show success message
         setTimeout(() => {
           // Role-based redirection
@@ -111,21 +105,6 @@ const Login = () => {
               navigate("/dashboard");
           }
         }, 1000);
-=======
-        switch (user.role) {
-          case "admin":
-            navigate("/admin-dashboard");
-            break;
-          case "MedicalExpert":
-            navigate("/Medical-dashboard");
-            break;
-          case "user":
-            navigate("/dashboard");
-            break;
-          default:
-            navigate("/dashboard");
-        }
->>>>>>> 79218b8 (frontend)
       }
     } catch (err) {
       // Handle OTP verification required
@@ -176,7 +155,6 @@ const Login = () => {
   return (
     <>
       <Navbar />
-<<<<<<< HEAD
       <style>{`
         * {
           font-family: 'Poppins', sans-serif;
@@ -367,15 +345,12 @@ const Login = () => {
           }
         }
       `}</style>
-=======
->>>>>>> 79218b8 (frontend)
 
-      <div className="min-h-screen bg-teal-100 flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-5xl bg-white shadow-xl rounded-2xl overflow-hidden flex flex-col md:flex-row">
+      <div className="page-wrap">
+        <div className="login-card">
 
-          {/* LEFT SIDE (Hidden on Mobile) */}
+          {/* LEFT PANEL — HIDDEN ON MOBILE */}
           {!isMobile && (
-<<<<<<< HEAD
             <div className="left-panel">
               <div
                 className="service-image"
@@ -476,75 +451,9 @@ const Login = () => {
                 </div>
               </div>
             </Form>
-=======
-            <div className="w-1/2 bg-gradient-to-br from-cyan-600 to-teal-700 text-white p-12 flex flex-col justify-center">
-              <h2 className="text-4xl font-bold mb-4">Welcome Back!</h2>
-              <p className="text-lg opacity-90 leading-relaxed">
-                Access your dashboard securely with AI-powered support.
-              </p>
-            </div>
-          )}
-
-          {/* RIGHT SIDE FORM */}
-          <div className="w-full md:w-1/2 p-10 md:p-14 flex flex-col justify-center">
-            <h2 className="text-3xl font-bold text-teal-900 mb-6">
-              Login to your account
-            </h2>
-
-            {/* Email */}
-            <div className="mb-4">
-              <label className="font-semibold text-sm mb-1 block">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="you@example.com"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-full border border-teal-200 focus:ring-2 focus:ring-teal-400 outline-none"
-              />
-            </div>
-
-            {/* Password */}
-            <div className="mb-4">
-              <label className="font-semibold text-sm mb-1 block">Password</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter your password"
-                value={form.password}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-full border border-teal-200 focus:ring-2 focus:ring-teal-400 outline-none"
-              />
-            </div>
-
-            {/* Login Button */}
-            <button
-              onClick={handleLogin}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white font-bold py-3 rounded-full shadow-md hover:scale-105 transition-all duration-300"
-            >
-              Login
-            </button>
-
-            {/* Links */}
-            <div className="mt-6 text-sm">
-              <p className="font-semibold">
-                Forgot password?{" "}
-                <Link to="/forgot-password" className="text-blue-700 font-bold">
-                  Click Here
-                </Link>
-              </p>
-              <p className="font-semibold mt-2">
-                Not registered?{" "}
-                <Link to="/signup" className="text-blue-700 font-bold">
-                  Signup
-                </Link>
-              </p>
-            </div>
->>>>>>> 79218b8 (frontend)
           </div>
         </div>
       </div>
-
       <Footer />
     </>
   );

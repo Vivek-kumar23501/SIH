@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-<<<<<<< HEAD
 import { Form, FormGroup, Label, Input, Button, Alert, Spinner } from "reactstrap";
-=======
->>>>>>> 79218b8 (frontend)
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 
 const Signup = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -26,7 +24,6 @@ const Signup = () => {
     role: "patient" // Default role
   });
 
-<<<<<<< HEAD
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -43,10 +40,6 @@ const Signup = () => {
     else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = "Email is invalid";
     if (!form.mobile.trim()) newErrors.mobile = "Mobile number is required";
     else if (!/^\d{10,15}$/.test(form.mobile)) newErrors.mobile = "Please enter a valid mobile number (10-15 digits)";
-=======
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
->>>>>>> 79218b8 (frontend)
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -176,21 +169,30 @@ const Signup = () => {
   return (
     <>
       <Navbar />
-<<<<<<< HEAD
       <style>{`
         * {
           font-family: 'Poppins', sans-serif;
         }
-=======
->>>>>>> 79218b8 (frontend)
 
-      {/* PAGE WRAPPER */}
-      <div className="min-h-screen bg-[#e0f7fa] flex items-center justify-center px-4 py-10">
+        .page-wrap {
+          min-height: 100vh;
+          background: #e0f7fa;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 50px 18px;
+        }
 
-        {/* CARD */}
-        <div className="w-full max-w-5xl bg-white rounded-xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+        .split-card {
+          width: 100%;
+          max-width: 980px;
+          background: #fff;
+          border-radius: 14px;
+          overflow: hidden;
+          display: flex;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
 
-<<<<<<< HEAD
         .service-card {
           flex: 1;
           padding: 28px;
@@ -341,18 +343,17 @@ const Signup = () => {
         <div className="split-card">
 
           <div className="service-card">
-=======
-          {/* LEFT SECTION */}
-          <div className="hidden md:flex w-1/2 bg-gradient-to-br from-[#00acc1] to-[#00796b] text-white p-10 relative items-center">
-
-            {/* Hover Sliding Image */}
->>>>>>> 79218b8 (frontend)
             <div
-              className="absolute inset-0 bg-cover bg-center opacity-20 transition-all duration-500 hover:opacity-40 hover:translate-x-0 -translate-x-40"
+              className="service-image"
               style={{ backgroundImage: `url('/images/medpulse-signup.jpg')` }}
-            ></div>
+            />
+            <h2>Join <span>MedPulse</span></h2>
+            <p>
+              Create your account and receive AI-driven healthcare alerts,
+              preventive guidance, and multilingual support.
+            </p>
+          </div>
 
-<<<<<<< HEAD
           <div className="form-panel">
             <h2>Create your MedPulse account</h2>
 
@@ -486,141 +487,10 @@ const Signup = () => {
                 <div><Link to="/forgot-password">Forgot password?</Link></div>
               </div>
             )}
-=======
-            <div className="relative z-10">
-              <h2 className="text-3xl font-bold mb-4">
-                Join <span className="text-yellow-300">MedPulse</span>
-              </h2>
-              <p className="text-lg opacity-90 leading-relaxed">
-                Create your account and receive AI-powered healthcare alerts,
-                preventive tips, and multilingual assistance.
-              </p>
-            </div>
->>>>>>> 79218b8 (frontend)
 
           </div>
-
-          {/* RIGHT FORM SECTION */}
-          <div className="w-full md:w-1/2 p-8 md:p-10">
-
-            <h2 className="text-2xl font-bold text-[#0b3b3b] mb-6">
-              Create your MedPulse account
-            </h2>
-
-            {/* STEP 1 */}
-            {step === 1 && (
-              <div className="space-y-4">
-
-                <div>
-                  <label className="block font-semibold mb-1">Name</label>
-                  <input
-                    name="name"
-                    onChange={handleChange}
-                    className="w-full border rounded-full px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-[#00acc1] outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold mb-1">Email</label>
-                  <input
-                    name="email"
-                    type="email"
-                    onChange={handleChange}
-                    className="w-full border rounded-full px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-[#00acc1] outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold mb-1">Phone</label>
-                  <input
-                    name="phone"
-                    onChange={handleChange}
-                    className="w-full border rounded-full px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-[#00acc1] outline-none"
-                  />
-                </div>
-
-                <button
-                  onClick={sendOTP}
-                  className="w-full mt-2 bg-gradient-to-r from-[#0b63b6] to-[#2f8bff] text-white font-bold py-3 rounded-full"
-                >
-                  Send OTP
-                </button>
-              </div>
-            )}
-
-            {/* STEP 2 */}
-            {step === 2 && (
-              <div className="space-y-4">
-
-                <div>
-                  <label className="block font-semibold mb-1">Enter OTP</label>
-                  <input
-                    name="otp"
-                    onChange={handleChange}
-                    className="w-full border rounded-full px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-[#00acc1] outline-none"
-                  />
-                </div>
-
-                <button
-                  onClick={verifyOTP}
-                  className="w-full bg-gradient-to-r from-[#0b63b6] to-[#2f8bff] text-white font-bold py-3 rounded-full"
-                >
-                  Verify OTP
-                </button>
-
-              </div>
-            )}
-
-            {/* STEP 3 */}
-            {step === 3 && (
-              <div className="space-y-4">
-
-                <div>
-                  <label className="block font-semibold mb-1">Password</label>
-                  <input
-                    type="password"
-                    name="password"
-                    onChange={handleChange}
-                    className="w-full border rounded-full px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-[#00acc1] outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold mb-1">Confirm Password</label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    onChange={handleChange}
-                    className="w-full border rounded-full px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-[#00acc1] outline-none"
-                  />
-                </div>
-
-                <button
-                  onClick={register}
-                  className="w-full bg-gradient-to-r from-[#0b63b6] to-[#2f8bff] text-white font-bold py-3 rounded-full"
-                >
-                  Create Account
-                </button>
-
-              </div>
-            )}
-
-            {/* LINKS */}
-            <div className="flex items-center gap-3 text-sm mt-5 flex-wrap">
-              <span>Already registered?</span>
-              <Link to="/login" className="text-[#0b63b6] font-semibold">Login</Link>
-              <span>|</span>
-              <Link to="/forgot-password" className="text-[#0b63b6] font-semibold">
-                Forgot password?
-              </Link>
-            </div>
-
-          </div>
-
         </div>
-
       </div>
-
       <Footer />
     </>
   );
