@@ -21,11 +21,19 @@ router.post("/send-otp", async (req, res) => {
   try {
     const existingUser = await User.findOne({ email });
     const existingPending = await PendingUser.findOne({ email });
-    if (existingUser || existingPending) 
+    if (existingUser || existingPending)
       return res.status(400).json({ message: "Email already registered or pending!" });
 
+    // New: Check OTP attempts limit
+    if (!otpAttemptsStore[email]) otpAttemptsStore[email] = 0;
+    if (otpAttemptsStore[email] >= 5) {
+      return res.status(429).json({ success: false, message: "OTP request limit exceeded! Try after some time." });
+    }
+
+    otpAttemptsStore[email]++; // Increase attempt count
+
     const otp = Math.floor(1000 + Math.random() * 9000);
-    otpStore[email] = { otp, name, mobile };
+    otpStore[email] = { otp, name, mobile, timestamp: Date.now() };
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -112,15 +120,50 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
+
+    // Initialize tracking object for this user
+    if (!loginAttempts[email]) {
+      loginAttempts[email] = { attempts: 0, blockUntil: null };
+    }
+
+    // Check if user is blocked
+    const { attempts, blockUntil } = loginAttempts[email];
+    const currentTime = Date.now();
+
+    if (blockUntil && currentTime < blockUntil) {
+      const remainingTime = Math.ceil((blockUntil - currentTime) / 60000);
+      return res.status(429).json({
+        success: false,
+        message: `Too many failed attempts. Try after ${remainingTime} minutes.`,
+      });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
-      const pending = await PendingUser.findOne({ email });
-      if (pending) return res.status(400).json({ success: false, message: "Account pending, please complete password setup." });
       return res.status(400).json({ success: false, message: "User not found. Please signup." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ success: false, message: "Invalid password" });
+
+    if (!isMatch) {
+      loginAttempts[email].attempts += 1;
+
+      if (loginAttempts[email].attempts >= 5) {
+        loginAttempts[email].blockUntil = currentTime + 30 * 60 * 1000; // Block 30 min
+        return res.status(429).json({
+          success: false,
+          message: "Too many failed attempts. Account locked for 30 minutes.",
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: `Invalid password! Attempts left: ${5 - loginAttempts[email].attempts}`,
+      });
+    }
+
+    // Successful Login → Reset attempts
+    loginAttempts[email] = { attempts: 0, blockUntil: null };
 
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
@@ -129,11 +172,13 @@ router.post("/login", async (req, res) => {
     );
 
     res.json({ success: true, token, user });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Login failed" });
   }
 });
+
 
 // ----------------------
 // Forgot Password - Send OTP

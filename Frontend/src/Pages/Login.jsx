@@ -38,7 +38,26 @@ const Login = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [form, setForm] = useState({ email: "", password: "" });
 
-  // Responsive check (Kept the original logic for conditional rendering on mobile)
+  // 🟢 Auto Login Feature
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (token && user) {
+      switch (user.role) {
+        case "admin":
+          navigate("/admin-dashboard");
+          break;
+        case "user":
+          navigate("/dashboard");
+          break;
+        default:
+          navigate("/dashboard");
+      }
+    }
+  }, [navigate]);
+
+  // Responsive check
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
@@ -58,14 +77,12 @@ const Login = () => {
       if (res.data.success) {
         const { token, user } = res.data;
 
-        // Save token, userId, and user info in localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("userId", user._id);
         localStorage.setItem("user", JSON.stringify(user));
 
         alert("Login successful!");
 
-        // Role-based redirection
         switch (user.role) {
           case "admin":
             navigate("/admin-dashboard");
@@ -86,12 +103,9 @@ const Login = () => {
     <>
       <Navbar />
 
-      {/* Page Wrap */}
       <div className="min-h-screen bg-cyan-50 flex items-center justify-center p-8 md:p-12">
-        {/* Login Card */}
         <div className="w-full max-w-5xl bg-white rounded-2xl overflow-hidden shadow-xl shadow-gray-300/50 flex flex-col md:flex-row">
 
-          {/* LEFT PANEL — HIDDEN ON MOBILE (using Tailwind's responsive classes) */}
           <div className="flex-1 bg-gradient-to-br from-cyan-600 to-teal-600 p-10 text-white flex flex-col justify-center hidden md:flex">
             <div className="text-4xl font-bold mb-3">Welcome Back!</div>
             <div className="text-lg opacity-95 leading-relaxed">
@@ -99,7 +113,6 @@ const Login = () => {
             </div>
           </div>
 
-          {/* RIGHT LOGIN FORM */}
           <div className="flex-1 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
             <h2 className="font-bold text-2xl mb-8 text-teal-900">
               Login to your account
@@ -146,8 +159,10 @@ const Login = () => {
               </div>
             </form>
           </div>
+
         </div>
       </div>
+
       <Footer />
     </>
   );
