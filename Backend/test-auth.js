@@ -25,6 +25,7 @@ const testUserSchema = async () => {
     const testUser = new User({
       name: 'Dr. John Smith',
       email: 'doctor.john@test.com',
+      mobile: '1234567890',
       passwordHash: await User.hashPassword('securepassword123'),
       role: 'doctor'
     });

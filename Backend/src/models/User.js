@@ -77,6 +77,7 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ email: 1 });
 userSchema.index({ googleId: 1 });
 // NEW index for OTP cleanup
+
 userSchema.index({ mobile: 1 }); // NEW: Index for mobile
 userSchema.index({ 'otp.expiresAt': 1 });
 

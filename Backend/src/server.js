@@ -3,7 +3,7 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const connectDB = require('./config/database');
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/authRoutes');
 
 // Initialize Express app
 const app = express();
@@ -18,7 +18,7 @@ app.use(helmet({
 
 // CORS Configuration
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN ,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
