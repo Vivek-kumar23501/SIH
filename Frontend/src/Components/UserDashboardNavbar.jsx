@@ -191,7 +191,7 @@ class DashboardNavbar extends Component {
               </NavItem>
 
               <NavItem>
-                <NavLink tag={Link} to="/dashboard/alerts">Health Alerts</NavLink>
+                <NavLink tag={Link} to="/dashboard/blog">Expert Blog</NavLink>
               </NavItem>
 
               <NavItem>
@@ -228,7 +228,7 @@ class DashboardNavbar extends Component {
                 </DropdownItem>
 
                 <div className="dropdown-footer">
-                  <DropdownItem tag={Link} to="/login" className="logout-btn">
+                  <DropdownItem tag={Link} to="/" className="logout-btn">
                     Logout
                   </DropdownItem>
                 </div>

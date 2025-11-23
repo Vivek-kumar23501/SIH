@@ -9,8 +9,13 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 const router = express.Router();
 
-let otpStore = {}; // Temporary OTP storage
-let forgotOtpStore = {}; // Temporary store for forgot password OTPs
+// ----------------------
+// TEMPORARY STORE
+// ----------------------
+let otpStore = {}; 
+let forgotOtpStore = {};
+let otpAttemptsStore = {};  // OTP attempt limit for signup
+let loginAttempts = {};     // Track login failures
 
 // ----------------------
 // Send OTP for Signup
@@ -21,16 +26,17 @@ router.post("/send-otp", async (req, res) => {
   try {
     const existingUser = await User.findOne({ email });
     const existingPending = await PendingUser.findOne({ email });
+
     if (existingUser || existingPending)
       return res.status(400).json({ message: "Email already registered or pending!" });
 
-    // New: Check OTP attempts limit
+    // Limit OTP request to 5 times
     if (!otpAttemptsStore[email]) otpAttemptsStore[email] = 0;
     if (otpAttemptsStore[email] >= 5) {
-      return res.status(429).json({ success: false, message: "OTP request limit exceeded! Try after some time." });
+      return res.status(429).json({ success: false, message: "OTP limit exceeded! Try later." });
     }
 
-    otpAttemptsStore[email]++; // Increase attempt count
+    otpAttemptsStore[email]++;
 
     const otp = Math.floor(1000 + Math.random() * 9000);
     otpStore[email] = { otp, name, mobile, timestamp: Date.now() };
@@ -48,6 +54,7 @@ router.post("/send-otp", async (req, res) => {
     });
 
     res.json({ success: true, message: "OTP sent!" });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Failed to send OTP" });
@@ -55,7 +62,7 @@ router.post("/send-otp", async (req, res) => {
 });
 
 // ----------------------
-// Verify OTP and save pending user
+// Verify OTP for Signup
 // ----------------------
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
@@ -79,7 +86,7 @@ router.post("/verify-otp", async (req, res) => {
 });
 
 // ----------------------
-// Register user after OTP verification
+// Register User After OTP Verified
 // ----------------------
 router.post("/register", async (req, res) => {
   const { email, password, role } = req.body;
@@ -92,21 +99,19 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Move to User collection
     const newUser = new User({
       name: pendingUser.name,
       email: pendingUser.email,
       mobile: pendingUser.mobile,
       password: hashedPassword,
-      role: role || "user", // default role is user
+      role: role || "user",
     });
 
     await newUser.save();
-
-    // Delete from pending
     await PendingUser.deleteOne({ email });
 
     res.json({ success: true, message: "Account created successfully!" });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Registration failed" });
@@ -114,45 +119,42 @@ router.post("/register", async (req, res) => {
 });
 
 // ----------------------
-// Login Route
+// Login Route with Attempt Security
 // ----------------------
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
 
-    // Initialize tracking object for this user
     if (!loginAttempts[email]) {
       loginAttempts[email] = { attempts: 0, blockUntil: null };
     }
 
-    // Check if user is blocked
     const { attempts, blockUntil } = loginAttempts[email];
     const currentTime = Date.now();
 
     if (blockUntil && currentTime < blockUntil) {
-      const remainingTime = Math.ceil((blockUntil - currentTime) / 60000);
+      const remaining = Math.ceil((blockUntil - currentTime) / 60000);
       return res.status(429).json({
         success: false,
-        message: `Too many failed attempts. Try after ${remainingTime} minutes.`,
+        message: `Account blocked! Try after ${remaining} minutes.`,
       });
     }
 
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ success: false, message: "User not found. Please signup." });
-    }
+    if (!user)
+      return res.status(400).json({ success: false, message: "User not found!" });
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      loginAttempts[email].attempts += 1;
+      loginAttempts[email].attempts++;
 
       if (loginAttempts[email].attempts >= 5) {
-        loginAttempts[email].blockUntil = currentTime + 30 * 60 * 1000; // Block 30 min
+        loginAttempts[email].blockUntil = currentTime + 30 * 60 * 1000;
         return res.status(429).json({
           success: false,
-          message: "Too many failed attempts. Account locked for 30 minutes.",
+          message: "Too many attempts! Blocked for 30 minutes.",
         });
       }
 
@@ -162,7 +164,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Successful Login → Reset attempts
+    // SUCCESS → Reset login attempts
     loginAttempts[email] = { attempts: 0, blockUntil: null };
 
     const token = jwt.sign(
@@ -179,7 +181,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-
 // ----------------------
 // Forgot Password - Send OTP
 // ----------------------
@@ -187,7 +188,8 @@ router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ success: false, message: "Email not registered!" });
+    if (!user)
+      return res.status(400).json({ success: false, message: "Email not registered!" });
 
     const otp = Math.floor(1000 + Math.random() * 9000);
     forgotOtpStore[email] = { otp, timestamp: Date.now() };
@@ -200,14 +202,15 @@ router.post("/forgot-password", async (req, res) => {
     await transporter.sendMail({
       from: process.env.MAIL_USER,
       to: email,
-      subject: "Password Reset OTP",
-      text: `Your OTP for password reset is ${otp}`,
+      subject: "Reset Password OTP",
+      text: `Your OTP is ${otp}`,
     });
 
-    res.json({ success: true, message: "OTP sent to your email" });
+    res.json({ success: true, message: "OTP sent!" });
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: "Error sending OTP" });
+    res.status(500).json({ success: false, message: "OTP sending failed" });
   }
 });
 
@@ -218,24 +221,24 @@ router.post("/forgot-password/verify-otp", (req, res) => {
   const { email, otp } = req.body;
 
   const record = forgotOtpStore[email];
-  if (!record) return res.status(400).json({ success: false, message: "OTP not requested or expired" });
+  if (!record)
+    return res.status(400).json({ success: false, message: "OTP expired!" });
 
   if (record.otp == otp) {
-    res.json({ success: true, message: "OTP verified" });
+    res.json({ success: true, message: "OTP verified!" });
   } else {
-    res.status(400).json({ success: false, message: "Invalid OTP" });
+    res.status(400).json({ success: false, message: "Invalid OTP!" });
   }
 });
 
 // ----------------------
-// Forgot Password - Reset
+// Forgot Password - Reset Password
 // ----------------------
 router.put("/forgot-password/reset", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!forgotOtpStore[email]) {
-    return res.status(400).json({ success: false, message: "OTP not verified" });
-  }
+  if (!forgotOtpStore[email])
+    return res.status(400).json({ success: false, message: "OTP not verified!" });
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -243,10 +246,11 @@ router.put("/forgot-password/reset", async (req, res) => {
 
     delete forgotOtpStore[email];
 
-    res.json({ success: true, message: "Password updated successfully" });
+    res.json({ success: true, message: "Password Updated!" });
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: "Error updating password" });
+    res.status(500).json({ success: false, message: "Error updating password!" });
   }
 });
 

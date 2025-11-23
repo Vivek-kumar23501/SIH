@@ -3,6 +3,9 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
+import patientQueryRoutes from "./routes/patientQueryRoutes.js";
+import path from "path";
+import medicalBlogRoutes from "./routes/MedicalBlogRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +22,11 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/patient-query", patientQueryRoutes);
+app.use("/api/medical", medicalBlogRoutes);
+
+app.use("/uploads", express.static(path.join("uploads")));
+
 
 // Start Server
 const PORT = process.env.PORT || 5000;

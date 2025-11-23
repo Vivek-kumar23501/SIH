@@ -84,6 +84,9 @@ const Login = () => {
         alert("Login successful!");
 
         switch (user.role) {
+           case "MedicalExpert":
+            navigate("/medical-dashboard");
+            break;
           case "admin":
             navigate("/admin-dashboard");
             break;

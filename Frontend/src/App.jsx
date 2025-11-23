@@ -14,6 +14,9 @@ import CreateHealthQuery from "./Components/CreateHealthQuery";
 import CreateBlog from "./Pages/CreateBlog";
 import Chatbot from "./Components/Chatbot";
 import Vaccination from "./Pages/Vaccination";
+import Profile from "./Components/Profile";
+import ExpertQueryList from "./Pages/ExpertQueryList";
+import MedicalBlogList from "./Pages/MedicalBlogList";
 
 function App() {
   return (
@@ -37,6 +40,8 @@ function App() {
           <Route path="chatbot" element={<Chatbot />} />
           <Route path="health-queires" element={<CreateHealthQuery />} />
           <Route path="vaccinations" element={<Vaccination />} />
+          <Route path="profile" element={<Profile />} />
+            <Route path="blog" element={<MedicalBlogList />} />
         </Route>
 
         {/* ---------------- Medical Dashboard ---------------- */}
@@ -50,6 +55,8 @@ function App() {
         >
           {/* Create Blog inside medical dashboard */}
           <Route path="create-blog" element={<CreateBlog />} />
+          <Route path="patient-queries" element={<ExpertQueryList />} />
+        
         </Route>
 
         {/* ---------------- Admin Dashboard ---------------- */}
