@@ -1,16 +1,25 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import UserDashboardNavbar from "../Components/UserDashboardNavbar";
+import UserDashboardFooter from "../Components/UserDashboardFooter";
 
 const UserDashboard = () => {
+  const location = useLocation();
+
+  // Hide navbar only on chatbot route
+  const hideNavbar = location.pathname === "/dashboard/chatbot";
+
   return (
     <>
-      <UserDashboardNavbar />
+      {/* Show navbar only when NOT on chatbot */}
+      {!hideNavbar && <UserDashboardNavbar />}
 
-      {/* Dashboard sub-pages will load here */}
-      <div style={{ marginTop: "180px" }}>
+      <div>
         <Outlet />
       </div>
+
+      {/* You can show/hide footer similarly if needed */}
+      {/* {!hideNavbar && <UserDashboardFooter />} */}
     </>
   );
 };

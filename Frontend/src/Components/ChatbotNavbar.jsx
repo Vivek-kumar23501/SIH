@@ -31,7 +31,7 @@ class DashboardNavbar extends Component {
     return (
       <>
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Slab:wght@400;500;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
           * {
             font-family: "Poppins", sans-serif;
@@ -41,9 +41,13 @@ class DashboardNavbar extends Component {
             padding-top: 135px;
           }
 
+          /* HIDE top logo bar on mobile */
           @media (max-width: 767px) {
+            .top-logo-bar {
+              display: none !important;
+            }
             body {
-              padding-top: 105px;
+              padding-top: 75px !important;
             }
           }
 
@@ -63,16 +67,9 @@ class DashboardNavbar extends Component {
             object-fit: contain;
           }
 
-          @media (max-width: 767px) {
-            .top-logo-bar img {
-              height: 45px;
-            }
-          }
-
           .custom-navbar {
             position: fixed;
             top: 85px;
-            margin-top: 10px; 
             width: 100%;
             background: #ffffff;
             min-height: 70px;
@@ -81,8 +78,13 @@ class DashboardNavbar extends Component {
             z-index: 1040;
           }
 
+          @media (max-width: 767px) {
+            .custom-navbar {
+              top: 0;
+            }
+          }
+
           .navbar-brand {
-            font-family: 'Roboto Slab', serif;
             font-size: 1.6rem !important;
             font-weight: 700 !important;
             color: #00695c !important;
@@ -116,20 +118,11 @@ class DashboardNavbar extends Component {
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #00acc1;
-            cursor: pointer;
           }
 
           .dropdown-menu {
             border-radius: 8px;
             padding: 8px 0;
-            border: 1px solid #b2ebf2;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-          }
-
-          .dropdown-footer {
-            border-top: 1px solid #e0e0e0;
-            margin-top: 6px;
-            padding-top: 6px;
           }
 
           .logout-btn {
@@ -138,33 +131,15 @@ class DashboardNavbar extends Component {
           }
         `}</style>
 
-        {/* TOP LOGO BAR */}
+        {/* TOP LOGO BAR - Hidden on mobile */}
         <div className="top-logo-bar">
           <Container fluid>
             <Row className="align-items-center">
-              <Col xs="12" md="6" className="d-flex justify-content-center justify-content-md-start">
+              <Col className="d-flex justify-content-center justify-content-md-start">
                 <img src="/who.jpeg" alt="WHO" />
                 <img src="/Ayushman.png" alt="Ayushman Bharat" />
                 <img src="/minstry.png" alt="Ministry" />
                 <img src="/Sihlogo.png" alt="SIH" />
-              </Col>
-
-              <Col xs="12" md="6" className="d-flex justify-content-center justify-content-md-end mt-2 mt-md-0">
-                <UncontrolledDropdown>
-                  <DropdownToggle
-                    caret
-                    className="nav-link"
-                    style={{ background: "#e0f7fa", borderRadius: "8px" }}
-                  >
-                    Language
-                  </DropdownToggle>
-                  <DropdownMenu end>
-                    <DropdownItem>English</DropdownItem>
-                    <DropdownItem>Hindi</DropdownItem>
-                    <DropdownItem>Odia</DropdownItem>
-                    <DropdownItem>Urdu</DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
               </Col>
             </Row>
           </Container>
@@ -173,7 +148,7 @@ class DashboardNavbar extends Component {
         {/* MAIN NAVBAR */}
         <Navbar expand="lg" light className="custom-navbar px-4">
           <NavbarBrand tag={Link} to="/dashboard">
-            <img src="/MedPulse logo.jpg" alt="MedPulse Logo" />
+            <img src="/MedPulse logo.jpg" alt="Logo" />
             MedPulse Dashboard
           </NavbarBrand>
 
@@ -181,57 +156,26 @@ class DashboardNavbar extends Component {
 
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="mx-auto" navbar>
-
-              <NavItem>
-                <NavLink tag={Link} to="/dashboard">Dashboard</NavLink>
-              </NavItem>
-
-              <NavItem>
-                <NavLink tag={Link} to="/dashboard/chatbot">Chatbot</NavLink>
-              </NavItem>
-
-              <NavItem>
-                <NavLink tag={Link} to="/dashboard/alerts">Health Alerts</NavLink>
-              </NavItem>
-
-              <NavItem>
-                <NavLink tag={Link} to="/dashboard/vaccinations">Vaccinations</NavLink>
-              </NavItem>
-
-              <NavItem>
-                <NavLink tag={Link} to="/dashboard/health-queires">Health Queries</NavLink>
-              </NavItem>
-
+              <NavItem><NavLink tag={Link} to="/dashboard">Dashboard</NavLink></NavItem>
+              <NavItem><NavLink tag={Link} to="/dashboard/chatbot">Chatbot</NavLink></NavItem>
+              <NavItem><NavLink tag={Link} to="/dashboard/alerts">Health Alerts</NavLink></NavItem>
+              <NavItem><NavLink tag={Link} to="/dashboard/vaccinations">Vaccinations</NavLink></NavItem>
+              <NavItem><NavLink tag={Link} to="/dashboard/health-queires">Health Queries</NavLink></NavItem>
             </Nav>
 
-            {/* PROFILE DROPDOWN */}
+            {/* PROFILE */}
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav>
-                <img
-                  src="/default-profile.jpg"
-                  alt="Profile"
-                  className="profile-img"
-                />
+                <img src="/default-profile.jpg" className="profile-img" alt="Profile" />
               </DropdownToggle>
 
               <DropdownMenu end>
-                <DropdownItem tag={Link} to="/dashboard/profile">
-                  View Profile
-                </DropdownItem>
+                <DropdownItem tag={Link} to="/dashboard/profile">View Profile</DropdownItem>
+                <DropdownItem tag={Link} to="/dashboard/edit-profile">Edit Profile</DropdownItem>
+                <DropdownItem tag={Link} to="/dashboard/settings">Settings</DropdownItem>
 
-                <DropdownItem tag={Link} to="/dashboard/edit-profile">
-                  Edit Profile
-                </DropdownItem>
-
-                <DropdownItem tag={Link} to="/dashboard/settings">
-                  Settings
-                </DropdownItem>
-
-                <div className="dropdown-footer">
-                  <DropdownItem tag={Link} to="/login" className="logout-btn">
-                    Logout
-                  </DropdownItem>
-                </div>
+                <DropdownItem divider />
+                <DropdownItem tag={Link} to="/login" className="logout-btn">Logout</DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown>
           </Collapse>

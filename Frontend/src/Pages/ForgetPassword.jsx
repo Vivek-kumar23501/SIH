@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Form, FormGroup, Input, Button } from "reactstrap";
-import { Link } from "react-router-dom";
-import { FaEnvelope } from "react-icons/fa";
 import axios from "axios";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
-
+import { Link } from "react-router-dom";
 
 const ForgetPassword = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -19,24 +16,10 @@ const ForgetPassword = () => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
 
-    const cards = document.querySelectorAll(".service-card");
-    const observer = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("animate");
-        }),
-      { threshold: 0.15 }
-    );
-
-    cards.forEach((c) => observer.observe(c));
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      cards.forEach((c) => observer.unobserve(c));
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Step 1: send OTP
+  // Step 1: Send OTP
   const sendOTP = async () => {
     try {
       const res = await axios.post("http://localhost:5000/api/auth/forgot-password", { email });
@@ -49,7 +32,7 @@ const ForgetPassword = () => {
     }
   };
 
-  // Step 2: verify OTP
+  // Step 2: Verify OTP
   const verifyOTP = async () => {
     try {
       const res = await axios.post("http://localhost:5000/api/auth/forgot-password/verify-otp", { email, otp });
@@ -62,15 +45,23 @@ const ForgetPassword = () => {
     }
   };
 
-  // Step 3: reset password
+  // Step 3: Reset password
   const resetPassword = async () => {
     if (password !== confirmPassword) return alert("Passwords do not match!");
+
     try {
-      const res = await axios.put("http://localhost:5000/api/auth/forgot-password/reset", { email, password });
+      const res = await axios.put(
+        "http://localhost:5000/api/auth/forgot-password/reset",
+        { email, password }
+      );
+
       if (res.data.success) {
         alert(res.data.message);
         setStep(1);
-        setEmail(""); setOtp(""); setPassword(""); setConfirmPassword("");
+        setEmail("");
+        setOtp("");
+        setPassword("");
+        setConfirmPassword("");
       }
     } catch (err) {
       alert(err.response?.data?.message || "Error resetting password");
@@ -79,139 +70,113 @@ const ForgetPassword = () => {
 
   return (
     <>
-    <Navbar />
-      <style>{`
-        .page-wrap {
-          min-height: 100vh;
-          background: #e0f7fa;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 50px 18px;
-        }
+      <Navbar />
 
-        .split-card {
-          width: 100%;
-          max-width: 980px;
-          background: #fff;
-          border-radius: 14px;
-          overflow: hidden;
-          display: flex;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
+      {/* PAGE WRAPPER */}
+      <div className="min-h-screen bg-[#e0f7fa] flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-4xl bg-white rounded-xl shadow-xl flex flex-col md:flex-row overflow-hidden">
 
-        .service-card {
-          flex: 1;
-          padding: 28px;
-          position: relative;
-          min-height: 420px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          border-radius: 0;
-          background: linear-gradient(135deg, #00acc1, #00796b);
-          color: white;
-          transform: translateY(40px);
-          opacity: 0;
-          transition: all 0.7s ease;
-        }
-        .service-card.animate { transform: translateY(0); opacity: 1; }
-
-        .service-image {
-          position: absolute;
-          left: -110%;
-          top: 0;
-          width: 120%;
-          height: 100%;
-          background-size: cover;
-          background-position: center;
-          opacity: 0.10;
-          transition: all 0.55s ease;
-          z-index: 0;
-        }
-        .service-card:hover .service-image { left: 0; opacity: 0.20; }
-
-        .form-panel {
-          flex: 1;
-          padding: 34px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-
-        .brand-title { font-size: 28px; font-weight:700; margin-bottom:10px; }
-        .brand-sub { font-size: 15px; line-height:1.7; opacity:0.95; }
-
-        .input-rounded { border-radius: 30px; padding: 12px 16px; border: 1px solid #cfeff0; }
-        .btn-primary-custom {
-          background: linear-gradient(90deg,#0b63b6,#2f8bff);
-          border: none;
-          border-radius: 28px;
-          padding: 10px 20px;
-          font-weight: 700;
-          box-shadow: 0 8px 20px rgba(11,75,180,0.18);
-        }
-
-        .links-row { margin-top: 18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-        .links-row a { color: #0b63b6; font-weight: 600; text-decoration: none; }
-
-        @media (max-width: 767px) {
-          .split-card { flex-direction: column; }
-          .service-card { display: none !important; }
-          .form-panel { padding: 22px; }
-        }
-      `}</style>
-
-      <div className="page-wrap">
-        <div className="split-card">
+          {/* LEFT PANEL (Hidden on Mobile) */}
           {!isMobile && (
-            <div className="service-card" aria-hidden>
-              <div className="service-image" style={{ backgroundImage: `url('/images/medpulse-reset.jpg')` }} />
-              <div style={{ position: "relative", zIndex: 2 }}>
-                <div className="brand-title">Forgot Password?</div>
-                <div className="brand-sub">
-                  We'll help you get back into your account securely.
-                  Enter your registered email and follow the steps.
-                </div>
-              </div>
+            <div className="w-1/2 bg-gradient-to-br from-teal-400 to-teal-700 text-white p-10 relative overflow-hidden flex flex-col justify-center">
+              <div
+                className="absolute inset-0 bg-cover bg-center opacity-20 transition-all duration-500"
+                style={{ backgroundImage: `url('/images/medpulse-reset.jpg')` }}
+              ></div>
+
+              <h2 className="text-3xl font-bold relative z-10">Forgot Password?</h2>
+              <p className="mt-4 text-lg opacity-90 relative z-10">
+                We’ll help you recover your account securely.  
+                Enter your registered email to receive an OTP.
+              </p>
             </div>
           )}
 
-          <div className="form-panel">
-            <h2>Reset your password</h2>
+          {/* RIGHT PANEL - FORM */}
+          <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
+            <h2 className="text-2xl font-bold mb-6">Reset your password</h2>
+
+            {/* STEP 1: Enter Email */}
             {step === 1 && (
-              <>
-                <FormGroup className="mb-3 position-relative">
-                  <FaEnvelope className="position-absolute" style={{ top: '12px', left: '10px', color:'#764ba2' }}/>
-                  <Input type="email" placeholder="Enter your Email" required value={email} onChange={e=>setEmail(e.target.value)} style={{ paddingLeft:'35px' }} />
-                  <Button className="btn-primary-custom w-100 mt-2" onClick={sendOTP}>Send OTP</Button>
-                </FormGroup>
-              </>
+              <div>
+                <input
+                  type="email"
+                  placeholder="Enter your Email"
+                  className="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-400"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+
+                <button
+                  className="w-full mt-4 bg-blue-600 text-white py-3 rounded-full font-semibold hover:bg-blue-700 transition"
+                  onClick={sendOTP}
+                >
+                  Send OTP
+                </button>
+              </div>
             )}
+
+            {/* STEP 2: Enter OTP */}
             {step === 2 && (
-              <FormGroup>
-                <Input type="text" placeholder="Enter OTP" value={otp} onChange={e=>setOtp(e.target.value)} />
-                <Button className="btn-primary-custom w-100 mt-2" onClick={verifyOTP}>Verify OTP</Button>
-              </FormGroup>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Enter OTP"
+                  className="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-400"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+
+                <button
+                  className="w-full mt-4 bg-blue-600 text-white py-3 rounded-full font-semibold hover:bg-blue-700 transition"
+                  onClick={verifyOTP}
+                >
+                  Verify OTP
+                </button>
+              </div>
             )}
+
+            {/* STEP 3: Reset Password */}
             {step === 3 && (
               <>
-                <FormGroup>
-                  <Input type="password" placeholder="New Password" value={password} onChange={e=>setPassword(e.target.value)} />
-                </FormGroup>
-                <FormGroup>
-                  <Input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} />
-                </FormGroup>
-                <Button className="btn-primary-custom w-100" onClick={resetPassword}>Reset Password</Button>
+                <input
+                  type="password"
+                  placeholder="New Password"
+                  className="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-400 mb-3"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+
+                <input
+                  type="password"
+                  placeholder="Confirm Password"
+                  className="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-400 mb-3"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+
+                <button
+                  className="w-full bg-blue-600 text-white py-3 rounded-full font-semibold hover:bg-blue-700 transition"
+                  onClick={resetPassword}
+                >
+                  Reset Password
+                </button>
               </>
             )}
-            <div className="links-row">
-              <Link to="/login">Back to Login</Link>
-              <Link to="/signup">Create Account</Link>
+
+            {/* BOTTOM LINKS */}
+            <div className="flex gap-6 mt-4 text-blue-700 font-semibold">
+              <Link to="/login" className="hover:underline">
+                Back to Login
+              </Link>
+              <Link to="/signup" className="hover:underline">
+                Create Account
+              </Link>
             </div>
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );

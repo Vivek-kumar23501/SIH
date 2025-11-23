@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { Container, Row, Col } from "reactstrap";
 import {
   Bell,
   MessageSquare,
@@ -7,7 +6,6 @@ import {
   Globe,
   Smartphone,
   Mic,
-  ActivitySquare,
 } from "lucide-react";
 
 const services = [
@@ -25,9 +23,7 @@ const Services = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("animate");
-          }
+          if (entry.isIntersecting) entry.target.classList.add("animate-card");
         });
       },
       { threshold: 0.2 }
@@ -37,133 +33,62 @@ const Services = () => {
 
   return (
     <>
-      <style>{`
-        .services-section {
-          background: #e0f7fa;
-          padding: 60px 0;
-          min-height: 100vh;
-        }
-        .services-section h2 {
-          text-align: center;
-          font-family: 'Roboto Slab', serif;
-          font-size: 2.2rem;
-          font-weight: 700;
-          color: #00695c;
-          margin-bottom: 50px;
-        }
-        .service-card {
-          background: linear-gradient(135deg, #00acc1, #00796b);
-          border-radius: 15px;
-          padding: 25px 15px;
-          margin-bottom: 25px;
-          text-align: center;
-          color: white;
-          box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-          transform: translateY(50px);
-          opacity: 0;
-          transition: all 0.7s ease;
-          cursor: pointer;
-          position: relative;
-          overflow: hidden;
-          min-height: 250px; /* reduced height */
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        }
-        .service-card.animate {
-          transform: translateY(0);
-          opacity: 1;
-        }
-        .service-icon {
-          background: rgba(255,255,255,0.2);
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 15px;
-          transition: all 0.3s ease;
-        }
-        .service-card:hover .service-icon {
-          transform: scale(1.15);
-          background: rgba(255,255,255,0.35);
-        }
-        .service-title {
-          font-size: 1.3rem;
-          font-weight: 700;
-          margin-bottom: 10px;
-        }
-        .service-desc {
-          font-size: 0.95rem;
-          color: #e0f7fa;
-          line-height: 1.4;
-        }
-
-        /* Sliding image effect */
-        .service-image {
-          position: absolute;
-          left: -120%;
-          top: 0;
-          width: 120%;
-          height: 100%;
-          background-size: cover;
-          background-position: center;
-          border-radius: 15px;
-          transition: all 0.5s ease;
-          z-index: 0;
-          opacity: 0.15;
-        }
-        .service-card:hover .service-image {
-          left: 0;
-          opacity: 0.25;
-        }
-
-        .service-content {
-          position: relative;
-          z-index: 2;
-        }
-
-        .service-card:hover {
-          transform: translateY(-8px) scale(1.03);
-          box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-        }
-
-        @media (max-width: 767px) {
-          .services-section {
-            padding: 40px 15px;
-          }
-          .services-section h2 {
-            font-size: 1.8rem;
-          }
+      {/* Tailwind animation overrides */}
+      <style>
+        {`
           .service-card {
-            padding: 20px 10px;
-            min-height: 230px; /* reduced height for mobile */
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.7s ease;
           }
-        }
-      `}</style>
+          .animate-card {
+            transform: translateY(0);
+            opacity: 1;
+          }
+          .service-image {
+            transition: all 0.5s ease;
+          }
+        `}
+      </style>
 
-      <div className="services-section">
-        <Container>
-          <h2>Our Services</h2>
-          <Row>
+      <div className="bg-[#e0f7fa] py-16 md:py-20 min-h-screen">
+        <div className="max-w-7xl mx-auto px-5">
+          <h2 className="text-center text-3xl md:text-4xl font-bold text-[#00695c] mb-12 font-['Roboto Slab']">
+            Our Services
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {services.map((service, index) => (
-              <Col key={index} xs="12" sm="6" md="4">
-                <div className="service-card">
-                  <div
-                    className="service-image"
-                    style={{ backgroundImage: `url(${service.img})` }}
-                  ></div>
-                  <div className="service-content">
-                    <div className="service-icon">{service.icon}</div>
-                    <div className="service-title">{service.title}</div>
-                    <div className="service-desc">{service.description}</div>
+              <div
+                key={index}
+                className="service-card relative p-6 rounded-xl min-h-[250px] flex flex-col justify-center text-center text-white cursor-pointer
+                  shadow-lg transition-all duration-500
+                  bg-gradient-to-br from-[#00acc1] to-[#00796b] overflow-hidden
+                  hover:-translate-y-2 hover:scale-[1.03] hover:shadow-2xl"
+              >
+                {/* Sliding Background Image */}
+                <div
+                  className="service-image absolute left-[-120%] top-0 w-[120%] h-full opacity-20
+                    bg-cover bg-center rounded-xl group-hover:left-0 group-hover:opacity-30"
+                  style={{ backgroundImage: `url(${service.img})` }}
+                ></div>
+
+                <div className="relative z-10">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/30 hover:scale-110 transition-all">
+                    {service.icon}
                   </div>
+
+                  <h3 className="text-xl font-bold mb-2">{service.title}</h3>
+
+                  <p className="text-sm text-[#e0f7fa] leading-5">
+                    {service.description}
+                  </p>
                 </div>
-              </Col>
+              </div>
             ))}
-          </Row>
-        </Container>
+          </div>
+
+        </div>
       </div>
     </>
   );

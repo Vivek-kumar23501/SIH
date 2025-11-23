@@ -6,20 +6,26 @@ import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 import ForgetPassword from "./Pages/ForgetPassword";
 import UserDashboard from "./Pages/UserDashboard";
+
 import ProtectedRoute from "./Components/ProtectedRoute";
+import MedicalDashboard from "./Pages/MedicalDashboard";
+import AdminDashboard from "./Pages/AdminDashboard";
+import CreateHealthQuery from "./Components/CreateHealthQuery";
+import CreateBlog from "./Pages/CreateBlog";
 import Chatbot from "./Components/Chatbot";
+import Vaccination from "./Pages/Vaccination";
 
 function App() {
   return (
-    <div style={{ fontFamily: "'Poppins', sans-serif", minHeight: "100vh" }}>
+    <div style={{ fontFamily: "'Poppins', sans-serif", }}>
       <Routes>
-        {/* Public Pages */}
+        {/* ---------------- Public Pages ---------------- */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
 
-        {/* Protected Dashboard */}
+        {/* ---------------- User Dashboard ---------------- */}
         <Route
           path="/dashboard/*"
           element={
@@ -28,12 +34,33 @@ function App() {
             </ProtectedRoute>
           }
         >
-          {/* Default Dashboard Page */}
-          <Route index element={<div>Welcome to your Dashboard</div>} />
-
-          {/* Chatbot Page */}
           <Route path="chatbot" element={<Chatbot />} />
+          <Route path="health-queires" element={<CreateHealthQuery />} />
+          <Route path="vaccinations" element={<Vaccination />} />
         </Route>
+
+        {/* ---------------- Medical Dashboard ---------------- */}
+        <Route
+          path="/medical-dashboard/*"
+          element={
+            <ProtectedRoute>
+              <MedicalDashboard />
+            </ProtectedRoute>
+          }
+        >
+          {/* Create Blog inside medical dashboard */}
+          <Route path="create-blog" element={<CreateBlog />} />
+        </Route>
+
+        {/* ---------------- Admin Dashboard ---------------- */}
+        <Route
+          path="/admin-dashboard/*"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );
