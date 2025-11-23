@@ -1,26 +1,70 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
-import { Link } from "react-router-dom";
+
+// Helper component for styled input fields
+const CustomInput = ({ type, placeholder, value, onChange, icon: Icon, required = false, isEmailStep = false }) => (
+  // Note: The conditional rendering for the icon is within the input wrapper
+  <div className="mb-4 relative">
+    <input
+      type={type}
+      placeholder={placeholder}
+      required={required}
+      value={value}
+      onChange={onChange}
+      // Adjusted padding for the input. If isEmailStep is true (and icon is removed), padding will be standard px-4.
+      className={`w-full rounded-full border border-cyan-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ${isEmailStep ? 'px-4 py-3' : 'pl-10 py-3 pr-4'}`}
+    />
+    {/* Removed Icon rendering for the email step, but kept it for other potential inputs if needed */}
+    {Icon && !isEmailStep && (
+      <Icon className="absolute top-1/2 left-3 transform -translate-y-1/2 text-cyan-600" />
+    )}
+  </div>
+);
+
+// Helper component for the primary custom button
+const PrimaryButton = ({ onClick, children, className = "" }) => (
+  <button
+    type="button"
+    className={`w-full bg-gradient-to-r from-blue-700 to-blue-500 text-white font-bold rounded-full py-3 px-8 shadow-lg shadow-blue-900/10 transition duration-300 ease-in-out transform hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-900/20 ${className}`}
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);
 
 const ForgetPassword = () => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // useEffect for animation logic (unchanged)
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
+    const card = document.querySelector(".service-card-animate");
+    if (card) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.remove("opacity-0", "translate-y-10");
+              entry.target.classList.add("opacity-100", "translate-y-0");
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+      observer.observe(card);
+      return () => observer.unobserve(card);
+    }
   }, []);
 
-  // Step 1: Send OTP
+  // API Handlers (unchanged)
   const sendOTP = async () => {
+    if (!email) return alert("Please enter your email address.");
     try {
       const res = await axios.post("http://localhost:5000/api/auth/forgot-password", { email });
       if (res.data.success) {
@@ -32,8 +76,8 @@ const ForgetPassword = () => {
     }
   };
 
-  // Step 2: Verify OTP
   const verifyOTP = async () => {
+    if (!otp) return alert("Please enter the OTP.");
     try {
       const res = await axios.post("http://localhost:5000/api/auth/forgot-password/verify-otp", { email, otp });
       if (res.data.success) {
@@ -45,23 +89,16 @@ const ForgetPassword = () => {
     }
   };
 
-  // Step 3: Reset password
   const resetPassword = async () => {
     if (password !== confirmPassword) return alert("Passwords do not match!");
+    if (!password) return alert("Please enter a new password.");
 
     try {
-      const res = await axios.put(
-        "http://localhost:5000/api/auth/forgot-password/reset",
-        { email, password }
-      );
-
+      const res = await axios.put("http://localhost:5000/api/auth/forgot-password/reset", { email, password });
       if (res.data.success) {
         alert(res.data.message);
         setStep(1);
-        setEmail("");
-        setOtp("");
-        setPassword("");
-        setConfirmPassword("");
+        setEmail(""); setOtp(""); setPassword(""); setConfirmPassword("");
       }
     } catch (err) {
       alert(err.response?.data?.message || "Error resetting password");
@@ -72,111 +109,102 @@ const ForgetPassword = () => {
     <>
       <Navbar />
 
-      {/* PAGE WRAPPER */}
-      <div className="min-h-screen bg-[#e0f7fa] flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-4xl bg-white rounded-xl shadow-xl flex flex-col md:flex-row overflow-hidden">
+      {/* Page Wrap */}
+      <div className="min-h-screen bg-cyan-50 flex items-center justify-center p-4 md:p-8">
+        {/* Split Card */}
+        <div className="w-full max-w-5xl bg-white rounded-xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
 
-          {/* LEFT PANEL (Hidden on Mobile) */}
-          {!isMobile && (
-            <div className="w-1/2 bg-gradient-to-br from-teal-400 to-teal-700 text-white p-10 relative overflow-hidden flex flex-col justify-center">
-              <div
-                className="absolute inset-0 bg-cover bg-center opacity-20 transition-all duration-500"
-                style={{ backgroundImage: `url('/images/medpulse-reset.jpg')` }}
-              ></div>
-
-              <h2 className="text-3xl font-bold relative z-10">Forgot Password?</h2>
-              <p className="mt-4 text-lg opacity-90 relative z-10">
-                We’ll help you recover your account securely.  
-                Enter your registered email to receive an OTP.
-              </p>
+          {/* Left Panel (Service Card) - Hidden on Mobile (unchanged) */}
+          <div
+            className="service-card-animate flex-1 p-8 min-h-[420px] bg-gradient-to-br from-cyan-600 to-teal-600 text-white flex-col justify-center relative opacity-0 translate-y-10 transition duration-700 ease-out hidden md:flex"
+            aria-hidden
+          >
+            <div
+              className="absolute left-0 top-0 w-full h-full bg-cover bg-center opacity-10 transition duration-500 group-hover:left-0 group-hover:opacity-20 z-0"
+              style={{ backgroundImage: `url('/images/medpulse-reset.jpg')` }}
+            />
+            <div className="relative z-10">
+              <div className="text-3xl font-bold mb-3">Forgot Password?</div>
+              <div className="text-lg leading-relaxed opacity-95">
+                We'll help you get back into your account securely.
+                Enter your registered email and follow the steps.
+              </div>
             </div>
-          )}
+          </div>
 
-          {/* RIGHT PANEL - FORM */}
-          <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
-            <h2 className="text-2xl font-bold mb-6">Reset your password</h2>
+          {/* Right Panel (Form Panel) */}
+          <div className="flex-1 p-6 md:p-10 flex flex-col justify-center">
+            <h2 className="text-2xl font-semibold mb-6 text-teal-900">
+              Reset your password
+            </h2>
 
-            {/* STEP 1: Enter Email */}
+            {/* Step 1: Enter Email and Send OTP */}
             {step === 1 && (
-              <div>
-                <input
+              <form onSubmit={(e) => { e.preventDefault(); sendOTP(); }}>
+                <CustomInput
                   type="email"
                   placeholder="Enter your Email"
-                  className="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-400"
+                  required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
+                  isEmailStep={true} // <-- Flag to indicate the email step
                 />
-
-                <button
-                  className="w-full mt-4 bg-blue-600 text-white py-3 rounded-full font-semibold hover:bg-blue-700 transition"
-                  onClick={sendOTP}
-                >
+                <PrimaryButton className="mt-2" onClick={sendOTP}>
                   Send OTP
-                </button>
-              </div>
+                </PrimaryButton>
+              </form>
             )}
 
-            {/* STEP 2: Enter OTP */}
+            {/* Step 2: Verify OTP */}
             {step === 2 && (
-              <div>
-                <input
+              <form onSubmit={(e) => { e.preventDefault(); verifyOTP(); }}>
+                <CustomInput
                   type="text"
                   placeholder="Enter OTP"
-                  className="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-400"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
+                  onChange={e => setOtp(e.target.value)}
+                  // Icon prop intentionally omitted here and in step 3
                 />
-
-                <button
-                  className="w-full mt-4 bg-blue-600 text-white py-3 rounded-full font-semibold hover:bg-blue-700 transition"
-                  onClick={verifyOTP}
-                >
+                <PrimaryButton className="mt-2" onClick={verifyOTP}>
                   Verify OTP
-                </button>
-              </div>
+                </PrimaryButton>
+              </form>
             )}
 
-            {/* STEP 3: Reset Password */}
+            {/* Step 3: Reset Password */}
             {step === 3 && (
-              <>
-                <input
+              <form onSubmit={(e) => { e.preventDefault(); resetPassword(); }}>
+                <CustomInput
                   type="password"
                   placeholder="New Password"
-                  className="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-400 mb-3"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                 />
-
-                <input
+                <CustomInput
                   type="password"
                   placeholder="Confirm Password"
-                  className="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-400 mb-3"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={e => setConfirmPassword(e.target.value)}
                 />
-
-                <button
-                  className="w-full bg-blue-600 text-white py-3 rounded-full font-semibold hover:bg-blue-700 transition"
-                  onClick={resetPassword}
-                >
+                <PrimaryButton onClick={resetPassword}>
                   Reset Password
-                </button>
-              </>
+                </PrimaryButton>
+              </form>
             )}
 
-            {/* BOTTOM LINKS */}
-            <div className="flex gap-6 mt-4 text-blue-700 font-semibold">
-              <Link to="/login" className="hover:underline">
+            {/* Links Row (unchanged) */}
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-semibold">
+              <Link to="/login" className="text-blue-600 hover:underline">
                 Back to Login
               </Link>
-              <Link to="/signup" className="hover:underline">
+              <span className="text-gray-400">|</span>
+              <Link to="/signup" className="text-blue-600 hover:underline">
                 Create Account
               </Link>
             </div>
           </div>
         </div>
       </div>
-
       <Footer />
     </>
   );
