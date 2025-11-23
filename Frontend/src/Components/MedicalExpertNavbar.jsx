@@ -45,7 +45,33 @@ class MedicalExpertNavbar extends Component {
 
           @media (max-width: 767px) { .top-logo-bar img { height: 45px; } }
 
-          .custom-navbar { position: fixed; top: 85px; margin-top: 15px; width: 100%; background: #ffffff; min-height: 70px; border-bottom: 2px solid #00acc1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 1040; }
+          @media (min-width: 767px) {
+          .custom-navbar {
+            position: fixed;
+            top: 75px;
+            margin-top: 10px; 
+            width: 100%;
+            background: #ffffff;
+            min-height: 70px;
+            border-bottom: 2px solid #00acc1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 1040;
+          }
+        }
+          @media (max-width: 767px) {
+             .custom-navbar {
+            position: fixed;
+            top: 85px;
+            margin-top: 10px; 
+            width: 100%;
+            background: #ffffff;
+            min-height: 70px;
+            border-bottom: 2px solid #00acc1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 1040;
+          }
+        }
+
 
           .navbar-brand { font-family: 'Roboto Slab', serif; font-size: 1.6rem !important; font-weight: 700 !important; color: #00695c !important; display: flex; align-items: center; }
 

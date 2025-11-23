@@ -130,7 +130,7 @@ const MedicalBlogManager = () => {
   };
 
   return (
-    <div className="p-6 bg-[#e0f7fa]  mt-[5vh]">
+    <div className="p-6 bg-[#e0f7fa]  mt-[1vh]">
 
       <h2 className="text-2xl font-bold text-center text-[#00796b] mb-6">Medical Blogs</h2>
 
