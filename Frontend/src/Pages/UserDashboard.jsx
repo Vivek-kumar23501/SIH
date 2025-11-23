@@ -20,6 +20,7 @@ const UserDashboard = () => {
 
       {/* You can show/hide footer similarly if needed */}
       {/* {!hideNavbar && <UserDashboardFooter />} */}
+      <UserDashboardFooter />
     </>
   );
 };

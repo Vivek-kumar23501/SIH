@@ -37,7 +37,7 @@ router.post(
         mainCategory,
         subCategory,
         featuredImage: req.file.filename,
-        createdBy: req.user?._id || null, // If authentication set
+        createdBy: req.user?._id || null,
       });
 
       await newBlog.save();
@@ -65,6 +65,52 @@ router.get("/all", async (req, res) => {
     res.status(200).json({ success: true, blogs });
   } catch (error) {
     console.error("Error fetching blogs:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ---------------- UPDATE BLOG ----------------
+router.put("/edit/:id", upload.single("featuredImage"), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, shortDescription, mainCategory, subCategory } = req.body;
+
+    const updatedData = { title, shortDescription, mainCategory, subCategory };
+
+    // If new image is uploaded, update it
+    if (req.file) {
+      updatedData.featuredImage = req.file.filename;
+    }
+
+    const updatedBlog = await MedicalBlog.findByIdAndUpdate(id, updatedData, {
+      new: true,
+    });
+
+    if (!updatedBlog) {
+      return res.status(404).json({ success: false, message: "Blog not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Blog updated successfully", blog: updatedBlog });
+  } catch (error) {
+    console.error("Error updating blog:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ---------------- DELETE BLOG ----------------
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedBlog = await MedicalBlog.findByIdAndDelete(id);
+
+    if (!deletedBlog) {
+      return res.status(404).json({ success: false, message: "Blog not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Blog deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting blog:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });

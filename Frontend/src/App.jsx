@@ -56,6 +56,7 @@ function App() {
           {/* Create Blog inside medical dashboard */}
           <Route path="create-blog" element={<CreateBlog />} />
           <Route path="patient-queries" element={<ExpertQueryList />} />
+          <Route path="profile" element={<Profile />} />
         
         </Route>
 
